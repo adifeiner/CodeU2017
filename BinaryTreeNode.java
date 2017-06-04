@@ -1,6 +1,5 @@
 public class BinaryTreeNode<T> {
-
-        private T data;
+        private final T data;
         private BinaryTreeNode<T> leftChild;
         private BinaryTreeNode<T> rightChild;
 
