@@ -1,6 +1,12 @@
+import jdk.internal.cmm.SystemResourcePressureImpl;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -9,63 +15,71 @@ import static org.junit.Assert.*;
  * Created by adi on 6/1/2017.
  */
 public class BinaryTreeTest {
-
-    @Test
-    public void testPrintAncestors(){
-        BinaryTree<Integer> myTree = new BinaryTree(16);
-        myTree.setInsertChild(BinaryTree.InsertChild.Left);
-        myTree.insert(9, 16);
-        myTree.insert(3, 9);
-        myTree.insert(1, 3);
-        myTree.setInsertChild(BinaryTree.InsertChild.Right);
-        myTree.insert(18, 16);
-        myTree.insert(14, 9);
-        myTree.insert(5, 3);
-        myTree.insert(19, 18);
-
-        List<Integer> result = new ArrayList<>();
-        result.add(3);
-        result.add(9);
-        result.add(16);
-
-        assertEquals(result , myTree.printAncestors(myTree, 5));
-
-        assertNull(myTree.printAncestors(myTree, 4));
-
-        result.remove(2);
-        result.remove(1);
-        result.remove(0);
-
-        assertEquals(result, myTree.printAncestors(myTree, 16));
-    }
-    @Test
-    public void tesLowestCommonAncestor() throws Exception {
-        BinaryTree<Integer> myTree = new BinaryTree(16);
-        myTree.setInsertChild(BinaryTree.InsertChild.Left);
-        myTree.insert(9, 16);
-        myTree.insert(3, 9);
-        myTree.insert(1, 3);
-        myTree.setInsertChild(BinaryTree.InsertChild.Right);
-        myTree.insert(18, 16);
-        myTree.insert(14, 9);
-        myTree.insert(5, 3);
-        myTree.insert(19, 18);
-
-        BinaryTreeNode<Integer> node1 = myTree.lowestCommonAncestor(myTree, myTree.exists(5), myTree.exists(14));
-        assertEquals(myTree.exists(9), node1);
-
-        BinaryTreeNode<Integer> node2 = myTree.lowestCommonAncestor(myTree, myTree.exists(5), myTree.exists(5));
-        assertNull(node2);
-
-        BinaryTreeNode<Integer> node3 = myTree.lowestCommonAncestor(myTree, myTree.exists(19).getLeftChild(),
-                myTree.exists(5));
-        assertNull(node3);
-
-        BinaryTreeNode<Integer> node4 = myTree.lowestCommonAncestor(myTree, myTree.exists(5), myTree.exists(-5));
-        assertNull(node4);
-
-        BinaryTreeNode<Integer> node5 = myTree.lowestCommonAncestor(myTree, myTree.exists(16), myTree.exists(18));
-        assertEquals(myTree.getRoot(), node5);
+    private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+    private BinaryTree<Integer> myTree;
+    @Before
+    public void setUp(){
+        System.setOut(new PrintStream(outContent));
+        myTree = new BinaryTree(16);
+        myTree.insert(9, 16, BinaryTree.InsertChild.LEFT);
+        myTree.insert(3, 9, BinaryTree.InsertChild.LEFT);
+        myTree.insert(1, 3, BinaryTree.InsertChild.LEFT);
+        myTree.insert(18, 16, BinaryTree.InsertChild.RIGHT);
+        myTree.insert(14, 9, BinaryTree.InsertChild.RIGHT);
+        myTree.insert(5, 3, BinaryTree.InsertChild.RIGHT);
+        myTree.insert(19, 18, BinaryTree.InsertChild.RIGHT);
     }
 
+    @After
+    public void cleanUpStream() {
+        System.setOut(null);
+    }
+
+    @Test
+    public void testFindAncestors_existingNode() {
+        List<Integer> result = new ArrayList<>(Arrays.asList(3, 9, 16));
+        assertEquals("Lists should be identical", result, this.myTree.findAncestors(5));
+    }
+
+    @Test
+    public void testFindAncestors_missingNode() {
+        assertNull(myTree.findAncestors(4));
+    }
+
+    @Test
+    public void testPrintAncestors_existingNode(){
+        this.myTree.printAncestors(5);
+        assertEquals("3 9 16 ", outContent.toString());
+    }
+
+    @Test
+    public void testPrintAncestors_missingNode(){
+        this.myTree.printAncestors(4);
+        assertEquals("Should be empty", "",outContent.toString());
+    }
+
+    @Test
+    public void testLowestCommonAncestor_existingAncestor() {
+        assertEquals("The ancestor should be 9", (Integer) 9, this.myTree.lowestCommonAncestor(5, 14));
+    }
+
+    @Test
+    public void testLowestCommonAncestor_sameValue() {
+        assertNull(this.myTree.lowestCommonAncestor(5, 5));
+    }
+
+    @Test
+    public void testLowestCommonAncestor_missingKey() {
+        assertNull(this.myTree.lowestCommonAncestor(17, 5));
+    }
+
+    @Test
+    public void testLowestCommonAncestor_missing2keys() {
+        assertNull(this.myTree.lowestCommonAncestor(5, -5));
+    }
+
+    @Test
+    public void testLowestCommonAncestor_theKeyIsTheAncestor() {
+        assertEquals("The key is the ancestor", (Integer) 16, this.myTree.lowestCommonAncestor(16, 18));
+    }
 }
