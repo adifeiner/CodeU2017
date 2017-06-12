@@ -3,13 +3,8 @@ import java.util.List;
 
 public class BinaryTree<T> {
     private final BinaryTreeNode<T> root;
-    public enum InsertChild {Left, Right};
 
-    private InsertChild m_insertChild = InsertChild.Left;
-
-    public void setInsertChild (InsertChild insertChild) {
-        m_insertChild = insertChild;
-    }
+    public enum InsertChild {LEFT, RIGHT};
 
     public BinaryTree(T data) {
         this.root = new BinaryTreeNode(data);
@@ -23,47 +18,25 @@ public class BinaryTree<T> {
         return root;
     }
 
-    // Check if the key exists in the tree
-    public BinaryTreeNode exists(T key) {
-        return exists(root, key);
-    }
-
-    // Recursively check if the key exists in the tree (receives root)
-    public BinaryTreeNode exists(BinaryTreeNode<T> root, T key) {
-        if (root == null) {
-            return null;
-        }
-        if (root.getData().equals(key)) {
-            return root;
-        }
-        BinaryTreeNode<T> node = exists(root.getLeftChild(), key);
-
-        if (node == null) {
-            node = exists(root.getRightChild(), key);
-        }
-        return node;
-    }
-
-
     // The function create a left (left or right) to the node with the value parent
-    public void insert(T value, T parent) {
+    public void insert(T value, T parent, InsertChild childSide) {
         // Check if this value already exists in the tree
-        if (this.exists(value) != null) {
+        if (this.root.containsKey(value)) {
             System.err.println("This value already exists");
             return;
         }
 
         // Check if the parent exists in the tree
-        if (this.exists(parent) == null) {
+        if (!this.root.containsKey(parent)) {
             System.err.println("This parent isn't exist in the tree");
             return;
         }
-        insert(value, this.exists(parent));
+        insert(value, this.root.findNode(parent), childSide);
     }
 
     // The function create a left (left or right) to the parent node
-    public void insert(T value, BinaryTreeNode<T> parent) {
-        if (m_insertChild == InsertChild.Left) {
+    public void insert(T value, BinaryTreeNode<T> parent, InsertChild childSidet) {
+        if (childSidet.equals(InsertChild.LEFT)) {
             if (parent.getLeftChild() == null) {
                 parent.setLeftChild(value);
             } else {
@@ -80,75 +53,73 @@ public class BinaryTree<T> {
         }
     }
 
-    // The function receives a Binary Tree and a key
     // Prints all the ancestors of the key from the root
-    public List<T> printAncestors(BinaryTree<T> tree, T key) {
-        if (tree == null) {
+    public void printAncestors(T key) {
+        List<T> ancestors = findAncestors(key);
+        if (ancestors != null) {
+            for (T ancestor : ancestors) {
+                System.out.print(ancestor + " ");
+            }
+        }
+    }
+
+    public List<T> findAncestors (T key) {
+        if (this == null) {
             System.err.println("The tree is empty");
             return null;
         }
-        BinaryTreeNode root = tree.getRoot();
 
-        if (tree.exists(key) == null) {
+        if (!this.root.containsKey(key)) {
             System.err.println("There is no such key in the tree");
             return null;
         }
-        List<T> ancestors = new ArrayList<>();
-        ancestors = printAncestors(ancestors, root, key);
+        List<T> ancestors = new ArrayList<T>();
+        ancestors = findAncestors(ancestors, this.root, key);
 
-        for(T ancestor : ancestors) {
-            System.out.print(ancestor + " ");
-        }
         return ancestors;
     }
 
-    public List<T> printAncestors(List<T> ancestors, BinaryTreeNode<T> root, T key) {
-        if (root.getData() == key) {
+    public List<T> findAncestors (List<T> ancestors, BinaryTreeNode<T> node, T key) {
+        if (node.getData() == key) {
             return ancestors;
         }
 
-        if (exists(root, key) != null) {
-            ancestors.add(0, (T) root.getData());
+        if (node.containsKey(key)) {
+            ancestors.add(0, node.getData());
 
-            if (exists(root.getRightChild(), key) != null) {
-                printAncestors(ancestors, root.getRightChild(), key);
+            if (node.getRightChild().containsKey(key)) {
+                findAncestors(ancestors, node.getRightChild(), key);
             }
 
-            if (exists(root.getLeftChild(), key) != null) {
-                printAncestors(ancestors, root.getLeftChild(), key);
+            if (node.getLeftChild().containsKey(key)) {
+                findAncestors(ancestors, node.getLeftChild(), key);
             }
         }
         return ancestors;
     }
 
-    // The function receives a Binary Tree and two nodes
-    // Return the lowest common ancestor
-    public BinaryTreeNode<T> lowestCommonAncestor(BinaryTree<T> tree, BinaryTreeNode<T> firstNode,
-                                                  BinaryTreeNode<T> secondNode) {
-        BinaryTreeNode<T> root = tree.getRoot();
-
-        if (root == null || firstNode == null || secondNode == null) {
+    // The function receives two keys
+    // Return the key of the lowest common ancestor
+    public T lowestCommonAncestor(T firstKey, T secondKey) {
+        if (this == null || !this.root.containsKey(firstKey) || !this.root.containsKey(secondKey)) {
             System.err.println("Invalid input");
             return null;
         }
 
-        if (firstNode.equals(secondNode)) {
-            System.err.println("Both nodes are identical, invalid input");
+        if (firstKey.equals(secondKey)) {
             System.err.println("Both nodes are identical, invalid input");
             return null;
         }
 
-        if (root.equals(firstNode) || root.equals(secondNode)) {
-            return root;
+        if (this.root.getData().equals(firstKey) || this.root.getData().equals(secondKey)) {
+            return this.root.getData();
         }
-        List<T> ancestorsFirstNode = new ArrayList<>();
-        ancestorsFirstNode = printAncestors(ancestorsFirstNode, root, firstNode.getData());
-        List<T> ancestorsSecondNode = new ArrayList<>();
-        ancestorsSecondNode = printAncestors(ancestorsSecondNode, root, secondNode.getData());
+        List<T> ancestorsFirstKey = findAncestors(firstKey);
+        List<T> ancestorsSecondKey = findAncestors(secondKey);
 
-        for (T ancestor : ancestorsFirstNode) {
-            if (ancestorsSecondNode.contains(ancestor)) {
-                return tree.exists(ancestor);
+        for (T ancestor : ancestorsFirstKey) {
+            if (ancestorsSecondKey.contains(ancestor)) {
+                return ancestor;
             }
         }
         return null;
