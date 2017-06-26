@@ -15,11 +15,9 @@ import static org.junit.Assert.*;
  * Created by adi on 6/1/2017.
  */
 public class BinaryTreeTest {
-    private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
     private BinaryTree<Integer> myTree;
     @Before
     public void setUp(){
-        System.setOut(new PrintStream(outContent));
         myTree = new BinaryTree(16);
         myTree.insert(9, 16, BinaryTree.InsertChild.LEFT);
         myTree.insert(3, 9, BinaryTree.InsertChild.LEFT);
@@ -47,16 +45,10 @@ public class BinaryTreeTest {
     }
 
     @Test
-    public void testPrintAncestors_existingNode(){
-        this.myTree.printAncestors(5);
-        assertEquals("3 9 16 ", outContent.toString());
+    public void testfindAncestors_existingNode(){
+        assertEquals(Arrays.asList(3, 9, 16), myTree.findAncestors(5));
     }
 
-    @Test
-    public void testPrintAncestors_missingNode(){
-        this.myTree.printAncestors(4);
-        assertEquals("Should be empty", "",outContent.toString());
-    }
 
     @Test
     public void testLowestCommonAncestor_existingAncestor() {
