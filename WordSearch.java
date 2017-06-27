@@ -1,42 +1,62 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
 
 public class WordSearch {
-    private List<String> results = new ArrayList<>();
 
-    public void findAllWords(int col, int row, char[][] characters, Dictionary dictionary) {
-        for (int i = 0; i < characters.length; i++) {
-            for (int j = 0; j < characters[1].length; j++) {
+    /**
+     * The function receives the number of rows, number of colums, a 2-dimensional array of characters and the dictionary.
+     * @param numOfCols
+     * @param numOfRows
+     * @param characters
+     * @param dictionary
+     * @return Set of all words found
+     */
+    public TreeSet<String> findAllWords(int numOfCols, int numOfRows, char[][] characters, Dictionary dictionary) {
+        TreeSet results = new TreeSet();
+        for (int i = 0; i < numOfRows; i++) {
+            for (int j = 0; j < numOfCols; j++) {
                 String word = String.valueOf(characters[i][j]);
                 if (dictionary.isPrefix(word)) {
-                    boolean[][] visit = new boolean[characters.length][characters[1].length];
-                    findWord(i, j, visit, characters, word, dictionary);
+                    // Create 2-dimensional boolean array
+                    boolean[][] visit = new boolean[numOfRows][numOfCols];
+                    visit[i][j] = true;
+                    findAllWords(i, j, visit, characters, word, dictionary, results, numOfRows, numOfCols);
                 }
             }
         }
+        return results;
     }
 
-    public void findWord(int row, int col, boolean[][] visit, char[][] characters, String word,
-                         Dictionary dictionary) {
+    /**
+     * The function move on the 8 adjacent cells and check if words from the dictionary exist
+     * @param rowIndex
+     * @param colIndex
+     * @param visit
+     * @param characters
+     * @param word
+     * @param dictionary
+     * @param results
+     * @param numOfRows
+     * @param numOfCols
+     */
+    public void findAllWords(int rowIndex, int colIndex, boolean[][] visit, char[][] characters, String word,
+                         Dictionary dictionary, TreeSet<String> results, int numOfRows, int numOfCols) {
         if (dictionary.isWord(word)) {
-            if (!this.results.contains(word)) {
                 results.add(word);
-            }
         }
 
-        for (int i = row - 1; i <= row + 1 && i < characters.length; i++) {
-            for (int j = col - 1; j <= col + 1 && j < characters[1].length; j++) {
+        for (int i = rowIndex - 1; i <= rowIndex + 1 && i < numOfRows; i++) {
+            for (int j = colIndex - 1; j <= colIndex + 1 && j < numOfCols; j++) {
                 if (i >= 0 && j >= 0 && !visit[i][j]) {
-                    if (dictionary.isPrefix(word + characters[i][j])) {
+                    String tmp = word + characters[i][j];
+                    if (dictionary.isPrefix(tmp)) {
                         visit[i][j] = true;
-                        findWord(i, j, visit, characters, word + characters[i][j], dictionary);
+                        findAllWords(i, j, visit, characters, word + characters[i][j], dictionary, results,
+                                numOfRows, numOfCols);
                     }
                 }
             }
         }
-    }
-
-    public List<String> getResults(){
-        return results;
     }
 }

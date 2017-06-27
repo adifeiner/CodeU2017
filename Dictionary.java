@@ -1,13 +1,18 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
 
 public class Dictionary {
-    private List<String> dictionary = new ArrayList<>();
-    private List<String> prefixes = new ArrayList<>();
+    private TreeSet<String> dictionary = new TreeSet<>();
+    private TreeSet<String> prefixes = new TreeSet<>();
 
-    public Dictionary(List<String> dictionary, List<String> prefixes) {
-        this.dictionary = dictionary;
-        this.prefixes = prefixes;
+    public Dictionary(List<String> dictionary) {
+        for (String word: dictionary) {
+            this.dictionary.add(word);
+            for (int i = 1; i <= word.length(); i++) {
+                this.prefixes.add(word.substring(0, i));
+            }
+        }
     }
 
     public boolean isWord(String word) {
