@@ -1,14 +1,8 @@
-import jdk.internal.cmm.SystemResourcePressureImpl;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import static org.junit.Assert.*;
 
 /**
@@ -26,11 +20,6 @@ public class BinaryTreeTest {
         myTree.insert(14, 9, BinaryTree.InsertChild.RIGHT);
         myTree.insert(5, 3, BinaryTree.InsertChild.RIGHT);
         myTree.insert(19, 18, BinaryTree.InsertChild.RIGHT);
-    }
-
-    @After
-    public void cleanUpStream() {
-        System.setOut(null);
     }
 
     @Test

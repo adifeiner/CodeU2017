@@ -35,7 +35,7 @@ public class BinaryTree<T> {
     }
 
     // The function create a left (left or right) to the parent node
-    public void insert(T value, BinaryTreeNode<T> parent, InsertChild childSidet) {
+    private void insert(T value, BinaryTreeNode<T> parent, InsertChild childSidet) {
         if (childSidet.equals(InsertChild.LEFT)) {
             if (parent.getLeftChild() == null) {
                 parent.setLeftChild(value);
@@ -49,16 +49,6 @@ public class BinaryTree<T> {
             } else {
                 System.err.println("There is already right child");
                 return;
-            }
-        }
-    }
-
-    // Prints all the ancestors of the key from the root
-    public void printAncestors(T key) {
-        List<T> ancestors = findAncestors(key);
-        if (ancestors != null) {
-            for (T ancestor : ancestors) {
-                System.out.print(ancestor + " ");
             }
         }
     }
@@ -79,7 +69,7 @@ public class BinaryTree<T> {
         return ancestors;
     }
 
-    public List<T> findAncestors (List<T> ancestors, BinaryTreeNode<T> node, T key) {
+    private List<T> findAncestors (List<T> ancestors, BinaryTreeNode<T> node, T key) {
         if (node.getData() == key) {
             return ancestors;
         }
