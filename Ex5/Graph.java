@@ -1,12 +1,13 @@
+package Ex5;
+
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 
-public class Graph {
-    private List<GraphNode> nodesList;
 
-    public Graph(){
-        nodesList = new LinkedList<>();
-    }
+class Graph {
+    private List<GraphNode> nodesList = new LinkedList<>();
+    ;
 
     public void addNode(GraphNode graphNode) {
         this.nodesList.add(graphNode);
@@ -81,19 +82,66 @@ public class Graph {
      *
      * @param alphabet - a list of characters
      */
-    public void updateGraph (List<Character> alphabet) {
-        for (int i = 0; i < alphabet.size(); i++) {
-            Character currChar = alphabet.get(i);
+    public void updateGraph(List<Character> alphabet) {
+
+        for (ListIterator<Character> iterator = alphabet.listIterator(); iterator.hasNext(); ) {
+            boolean hasPrev = iterator.hasPrevious();
+            Character currChar = iterator.next();
             if (!this.containsChar(currChar)) {
                 this.addNode(new GraphNode(currChar));
             }
-            if (i > 0) {
-                if (this.findNode(alphabet.get(i - 1)).containsChar(currChar)) {
+            
+            if (hasPrev) {
+                iterator.previous();
+                Character prev = iterator.previous();
+                if (this.findNode(prev).containsChar(currChar)) {
                     continue;
                 }
-                this.findNode(alphabet.get(i)).incrementInDegree();
-                this.findNode(alphabet.get(i - 1)).addCharToAdjList(alphabet.get(i));
+                this.findNode(currChar).incrementInDegree();
+                this.findNode(prev).addCharToAdjList(currChar);
+                iterator.next();
+                iterator.next();
             }
         }
+    }
+
+    private class GraphNode {
+        private char character;
+        private List<Character> adjacencyList;
+        private int inDegree;
+
+        public GraphNode(char character) {
+            this.character = character;
+            adjacencyList = new LinkedList<>();
+            inDegree = 0;
+        }
+
+        public void incrementInDegree(){
+            this.inDegree++;
+        }
+
+        public void addCharToAdjList(char character) {
+            this.adjacencyList.add(character);
+        }
+
+        public void decrementInDegree(){
+            this.inDegree--;
+        }
+        public char getCharacter() {
+            return this.character;
+        }
+
+        public int getInDegree() {
+            return inDegree;
+        }
+
+        public List<Character> getAdjacencyList() {
+            return adjacencyList;
+        }
+
+        public boolean containsChar(char character) {
+            return this.adjacencyList.contains(character);
+        }
+
     }
 }

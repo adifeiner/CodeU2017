@@ -1,6 +1,5 @@
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+package Ex5;
+import java.util.*;
 
 public class Ex5 {
     /**
@@ -13,18 +12,20 @@ public class Ex5 {
     public static List<Character> findAlphabetOrder(List<String> dictionary) {
         Graph alphabetGraph = new Graph();
         int index = 0;
-        List<String> updateDict = updateDictionary(dictionary, index);
-        List<List<String>> newDictionary = findSubDictionary(updateDict, index);
+        List<String> updateDict = filterWordsByLength(dictionary, index);
+        Map<String, List<String>> newDictionary = findSubDictionary(updateDict, index);
 
-        while (newDictionary != null) {
-            for (List<String> subDict : newDictionary) {
-                List<Character> subAlphabet = findAlphabetList(subDict, index);
+        while (!newDictionary.isEmpty()) {
+            for (Iterator<List<String>> iterator = newDictionary.values().iterator(); iterator.hasNext();) {
+                List<String> subDict = iterator.next();
+                List<Character> subAlphabet = findAlphabetList(subDict);
                 alphabetGraph.updateGraph(subAlphabet);
             }
             index++;
-            updateDict = updateDictionary(updateDict, index);
+            updateDict = filterWordsByLength(updateDict, index);
             newDictionary = findSubDictionary(updateDict, index);
         }
+
         return alphabetGraph.topologicalSort();
     }
 
@@ -36,50 +37,38 @@ public class Ex5 {
      * @param index - the index of the char we check
      * @return - a list of dictionaries
      */
-    private static List<List<String>> findSubDictionary(List<String> dictionary, int index) {
-        List<List<String>> dictionaryList = new ArrayList<>();
+    private static Map<String, List<String>> findSubDictionary(List<String> dictionary, int index) {
+        Map<String, List<String>> dictionaryMap = new LinkedHashMap<>();
         List<String> subDictionary = new ArrayList<>();
 
-        for (int j = 0; j < dictionary.size(); j++) {
-            if (dictionary.get(j).length() <= index) {
+        for (ListIterator<String> iterator = dictionary.listIterator(); iterator.hasNext(); ) {
+            String word = iterator.next();
+            if (word.length() <= index) {
                 continue;
             }
-            if (j == 0) {
-                subDictionary.add(dictionary.get(j));
-                continue;
-            }
-            // check if the prefixes from zero to index are equals
-            if (dictionary.get(j).substring(0, index).equals(dictionary.get(j - 1).substring(0, index))) {
-                subDictionary.add(dictionary.get(j));
-            } else {
-                if (subDictionary.size() > 0) {
-                    dictionaryList.add(subDictionary);
-                }
+
+            if (!dictionaryMap.containsKey(word.substring(0, index))) {
                 subDictionary = new ArrayList<>();
-                subDictionary.add(dictionary.get(j));
+                subDictionary.add(word.substring(index));
+            } else {
+                subDictionary.add(word.substring(index));
             }
+            dictionaryMap.put(word.substring(0, index), subDictionary);
         }
-        if (dictionaryList.size() == 0 && subDictionary.size() == 0) {
-            return null;
-        }
-        if (subDictionary.size() > 0) {
-            dictionaryList.add(subDictionary);
-        }
-        return dictionaryList;
+        return dictionaryMap;
     }
 
     /**
      * The function receives a dictionary and an index, and return an ordered list of the characters at the index
      *
-     * * @param dictionary - a list of words in lexicographic order
-     * @param index - char index in the word
+     * @param dictionary - a list of words in lexicographic order
      * @return - a list of ordered characters
      */
-    private static List<Character> findAlphabetList(List<String> dictionary, int index) {
-        List<Character> alphabet = new LinkedList<>();
+    private static List<Character> findAlphabetList(List<String> dictionary) {
+        List<Character> alphabet = new ArrayList<>();
         for (String word : dictionary) {
-            if (!alphabet.contains(word.charAt(index))) {
-                alphabet.add(word.charAt(index));
+            if (!alphabet.contains(word.charAt(0))) {
+                alphabet.add(word.charAt(0));
             }
         }
         return alphabet;
@@ -93,13 +82,15 @@ public class Ex5 {
      * @param length - length parameter
      * @return - a dictionary that contain only words that their length is greater than the length parameter
      */
-    private static List<String> updateDictionary(List<String> dictionary, int length) {
-        List<String> updateDict = new LinkedList<>();
-        for (int i = 0; i < dictionary.size(); i++) {
-            if (dictionary.get(i).length() > length) {
-                updateDict.add(dictionary.get(i));
+    private static List<String> filterWordsByLength(List<String> dictionary, int length) {
+        List<String> words = new LinkedList<>();
+        for (ListIterator<String> iterator = dictionary.listIterator(); iterator.hasNext();) {
+            String word = iterator.next();
+            if (word.length() > length) {
+                words.add(word);
             }
         }
-        return updateDict;
+
+        return words;
     }
 }

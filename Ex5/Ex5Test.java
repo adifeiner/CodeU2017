@@ -1,17 +1,21 @@
+package Ex5;
+
 import org.junit.Test;
+
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+
 import static junit.framework.Assert.assertEquals;
 
 public class Ex5Test {
-
+    /*
     @Test
     public void testfindAlphabetOrder_FirstDict(){
         List<String> dictionary = Arrays.asList("clock", "cloocki", "cocktail","cookie", "car");
         assertEquals(Arrays.asList('c','l','r','k','t','i','e','o','a'), Ex5.findAlphabetOrder(dictionary));
     }
-
+    */
     @Test
     public void testfindAlphabetOrder_SecondDict(){
         List<String> dictionary = Arrays.asList("ART", "RAT", "CAT", "CAR");
